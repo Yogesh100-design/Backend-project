@@ -1,0 +1,34 @@
+# Ignore node modules
+node_modules/
+
+# Build output
+dist/
+build/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Git folder
+.git/
+
+# Coverage reports
+coverage/
+
+# Optional: ignore compiled files
+*.tsbuildinfo
+
+# Optional: ignore database or uploads
+uploads/
+database/
