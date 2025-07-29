@@ -5,6 +5,11 @@ dotenv.config({
     path:'./env'
 })
 
-console.log("✅ index.js file loaded");
-
-connectDB();
+connectDB()
+.then(()=>{
+    app.listen(process.env.MONGODB_URI || 8000,()=>{
+        console.log(`Server is running on: ${process.env.MONGODB_URI}`)
+    })
+}).catch((error)=>{
+    console.log("MongoDB connection failed",error)
+})
