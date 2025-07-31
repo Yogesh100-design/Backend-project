@@ -1,5 +1,6 @@
 import { v2 as cloudinary } from "cloudinary";
-const fs = require("fs"); // Import required modules
+// const fs = require("fs"); // Import required modules
+import fs from "fs"; // Import required modules
 
 // Configuration
 cloudinary.config({
@@ -36,3 +37,5 @@ const uploadOnCloudinary = async (localFilePath) => {
     return null;
   }
 };
+
+export default uploadOnCloudinary;
