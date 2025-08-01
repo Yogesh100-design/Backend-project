@@ -1,10 +1,22 @@
-import express from "express";
+import { Router } from "express";
 import userValidationRules from "../validator/userValidator.js";
-import { validationResult } from "express-validator";
 import { registerUser } from "../controllers/User.controller.js";
+import {upload} from "../middlewares/multer.middleware.js"
 
-const router = express.Router();
+const router = Router()
 
-router.post("/register", userValidationRules, registerUser);
+router.route("/register").post(
+    upload.fields([
+        {
+            name: "avatar",
+            maxCount: 1
+        }, 
+        {
+            name: "coverimage",
+            maxCount: 1
+        }
+    ]),
+    registerUser
+    )
 
 export default router;

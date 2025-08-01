@@ -1,60 +1,69 @@
-// controllers/User.controller.js
 import asyncHandler from "../utils/asyncHandler.js";
-import apiError from "../utils/apiError.js";
+import ApiError from "../utils/apiError.js";
 import User from "../models/user.models.js";
 import uploadOnCloudinary from "../utils/cloudinary.js";
 import ApiResponce from "../utils/apiResponce.js";
 
-export const registerUser = asyncHandler(async (req, res, next) => {
-  const { username, password, email, fullname} =req.body;
-  
-  const existingUser= await User.findOne({
-    $or:[{username},{email}]
-  })
+export const registerUser = asyncHandler(async (req, res) => {
 
-  if(existingUser){
-    throw new apiError(
-      "Username or email already exists",
-      400
-    );
+  const { username, password, email, fullname } = req.body;
+
+
+  console.log("Form Fields:", req.body);
+  console.log("Uploaded Files:", req.files);
+
+  // Check for existing user
+  const existingUser = await User.findOne({
+    $or: [{ username }, { email }],
+  });
+
+  if (existingUser) {
+    throw new ApiError("Username or email already exists", 400);
   }
-  
-  const avtarLocalPath = req.files?.avtar[0]?.path;
-  const coverImageLocalPath = req.files?.coverImage[0]?.path;
+
+  // Get file paths
+  const avtarLocalPath = req?.files?.avatar?.[0]?.path;
+  const coverImageLocalPath = req?.files?.coverimage?.[0]?.path;
 
   if (!avtarLocalPath) {
-    throw new apiError("Avatar is required", 400);
+   throw new ApiError(400, "Avatar is required");
   }
 
-  //upoload avatar to cloudinary
+  
+
+  
+
+  // Upload to Cloudinary
   const avatarResponse = await uploadOnCloudinary(avtarLocalPath);
-  const coverImageresponce = await uploadOnCloudinary(coverImageLocalPath);
+  const coverImageResponse = coverImageLocalPath
+    ? await uploadOnCloudinary(coverImageLocalPath)
+    : null;
 
   if (!avatarResponse) {
-    throw new apiError("Failed to upload avatar", 500); 
-  }    
+    throw new ApiError(500,"Failed to upload avatar");
+  }
 
-
+  // Create new user
   const newUser = await User.create({
     username,
     password,
     email,
     fullname,
-    avatar: avatarResponse.secure_url, // Use the URL from Cloudinary response
-    coverImage: coverImageresponce?.secure_url, // Optional, if cover image is provided
+    avatar: avatarResponse.secure_url,
+    coverimage: coverImageResponse?.secure_url || null ,
   });
 
- const createdNewUser = User.findById(newUser._id).select("-password -refreshtoken");
- if (!createdNewUser) {
-    throw new apiError("Failed to create user", 500);
+  // Fetch the newly created user (without sensitive fields)
+  const createdNewUser = await User.findById(newUser._id).select(
+    "-password -refreshtoken"
+  );
+
+  if (!createdNewUser) {
+    throw new ApiError(500 ,"Failed to retrieve created user");
   }
 
-  return res.status(201).json(
-    new ApiResponce(201, "User registered successfully", createdNewUser)
-  );
-  console.log("Registering user:", { username, email,password });
-
-
+  // Send success response
+  return res
+    .status(201)
+    .json(new ApiResponce(201, "User registered successfully", createdNewUser));
 });
-
-

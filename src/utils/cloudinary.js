@@ -1,6 +1,6 @@
 import { v2 as cloudinary } from "cloudinary";
 // const fs = require("fs"); // Import required modules
-import fs from "fs"; // Import required modules
+import fs, { unlink } from "fs"; // Import required modules
 
 // Configuration
 cloudinary.config({
@@ -21,9 +21,8 @@ const uploadOnCloudinary = async (localFilePath) => {
       resource_type: "auto", // Automatically detect file type (image, video, etc.)
     });
 
-    // Log the response for confirmation/debugging
-    console.log("File uploaded successfully:", response);
-
+    fs.unlinkSync(localFilePath)
+    
     // Return the Cloudinary response (e.g., URL, public_id)
     return response;
   } catch (error) {
